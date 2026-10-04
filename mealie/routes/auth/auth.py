@@ -164,6 +164,30 @@ def get_token(
     return MealieAuthToken.respond(access_token, duration)
 
 
+def oidc_redirect_base(request: Request) -> str:
+    """Choose a configured callback origin from a strictly allowlisted Host header."""
+    request_host = request.headers.get("host", "").strip().lower()
+    request_scheme = "https" if request_is_https(request) else request.url.scheme
+    request_origin = f"{request_scheme}://{request_host}"
+
+    mapped_origin = settings.OIDC_REDIRECT_ORIGIN_MAP.get(request_origin)
+    if mapped_origin:
+        return mapped_origin
+
+    if request_origin in settings.OIDC_REDIRECT_ORIGINS:
+        return request_origin
+
+    request_base = str(request.base_url).rstrip("/")
+
+    if request_base.lower() in settings.OIDC_REDIRECT_ORIGINS:
+        return request_base
+
+    if not settings.is_default_base_url:
+        return settings.BASE_URL or request_base
+
+    return request_base
+
+
 @public_router.get("/oauth")
 async def oauth_login(request: Request):
     if not oauth:
@@ -178,11 +202,7 @@ async def oauth_login(request: Request):
         redirect_url = "http://localhost:3000/login"
     else:
         # Prioritize User Configuration over Request Headers.
-        if not settings.is_default_base_url:
-            base = settings.BASE_URL or request.base_url
-        else:
-            base = request.base_url
-        redirect_url = URLPath("/login").make_absolute_url(base)
+        redirect_url = URLPath("/login").make_absolute_url(oidc_redirect_base(request))
 
     response: RedirectResponse = await client.authorize_redirect(request, redirect_url)
     return response

@@ -408,6 +408,61 @@ class AppSettings(AppLoggingSettings):
     OIDC_SCOPES_OVERRIDE: str | None = None
     OIDC_TLS_CACERTFILE: str | None = None
     OIDC_CLIENT_TIMEOUT: float | Literal["None", "default"] = "default"
+    OIDC_REDIRECT_ORIGINS: tuple[str, ...] = ()
+    """Exact browser origins permitted to override BASE_URL for an OIDC web callback."""
+
+    @field_validator("OIDC_REDIRECT_ORIGINS")
+    @classmethod
+    def validate_oidc_redirect_origins(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        normalized: list[str] = []
+        for origin in value:
+            parsed = urlparse(origin)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or not parsed.hostname
+                or parsed.path not in {"", "/"}
+                or parsed.params
+                or parsed.query
+                or parsed.fragment
+                or parsed.username
+                or parsed.password
+            ):
+                raise ValueError(
+                    "OIDC_REDIRECT_ORIGINS entries must be origins such as https://mealie.example.com"
+                )
+            normalized.append(origin.rstrip("/").lower())
+
+        return tuple(dict.fromkeys(normalized))
+
+    OIDC_REDIRECT_ORIGIN_MAP: dict[str, str] = {}
+    """Exact browser origins mapped to an approved OIDC callback origin."""
+
+    @field_validator("OIDC_REDIRECT_ORIGIN_MAP")
+    @classmethod
+    def validate_oidc_redirect_origin_map(cls, value: dict[str, str]) -> dict[str, str]:
+        normalized: dict[str, str] = {}
+        for source, target in value.items():
+            pair: list[str] = []
+            for origin in (source, target):
+                parsed = urlparse(origin)
+                if (
+                    parsed.scheme not in {"http", "https"}
+                    or not parsed.hostname
+                    or parsed.path not in {"", "/"}
+                    or parsed.params
+                    or parsed.query
+                    or parsed.fragment
+                    or parsed.username
+                    or parsed.password
+                ):
+                    raise ValueError(
+                        "OIDC_REDIRECT_ORIGIN_MAP entries must be origins such as https://mealie.example.com"
+                    )
+                pair.append(origin.rstrip("/").lower())
+
+            normalized[pair[0]] = pair[1]
+
+        return normalized
 
     @property
     def OIDC_REQUIRES_GROUP_CLAIM(self) -> bool:
