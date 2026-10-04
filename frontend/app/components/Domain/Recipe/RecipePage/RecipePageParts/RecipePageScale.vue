@@ -5,9 +5,18 @@
       :recipe="recipe"
     />
     <RecipeScaleEditButton
-      v-if="!isEditMode"
+      v-if="!isEditMode && scaleBasis === 'servings'"
       v-model.number="scale"
       :recipe-servings="recipeServings"
+      :edit-scale="hasFoodOrUnit && !isEditMode"
+    />
+    <RecipeDimensionScaleButton
+      v-else-if="!isEditMode"
+      v-model.number="scale"
+      :basis="scaleBasis"
+      :unit="recipe.recipeScaleUnit"
+      :base-length="recipe.recipeScaleBaseLength"
+      :base-width="recipe.recipeScaleBaseWidth"
       :edit-scale="hasFoodOrUnit && !isEditMode"
     />
   </div>
@@ -15,9 +24,10 @@
 
 <script setup lang="ts">
 import RecipeScaleEditButton from "~/components/Domain/Recipe/RecipeScaleEditButton.vue";
+import RecipeDimensionScaleButton from "~/components/Domain/Recipe/RecipeDimensionScaleButton.vue";
 import RecipeUnitSystemButton from "~/components/Domain/Recipe/RecipeUnitSystemButton.vue";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { Recipe, RecipeScaleBasis } from "~/lib/api/types/recipe";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 
 const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
@@ -28,6 +38,10 @@ const { isEditMode } = usePageState(props.recipe.slug);
 
 const recipeServings = computed<number>(() => {
   return props.recipe.recipeServings || props.recipe.recipeYieldQuantity || 1;
+});
+
+const scaleBasis = computed<RecipeScaleBasis>(() => {
+  return props.recipe.recipeScaleBasis || "servings";
 });
 
 const hasFoodOrUnit = computed(() => {

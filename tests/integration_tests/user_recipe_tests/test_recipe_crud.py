@@ -438,6 +438,28 @@ def test_create_recipe_from_zip_reimport_into_same_instance(api_client: TestClie
     assert still_there.json()["id"] == original["id"]
 
 
+def test_recipe_scale_dimensions_round_trip(api_client: TestClient, unique_user: TestUser):
+    slug = api_client.post(api_routes.recipes, json={"name": random_string()}, headers=unique_user.token).json()
+    recipe = api_client.get(api_routes.recipes_slug(slug), headers=unique_user.token).json()
+    recipe.update(
+        {
+            "recipeScaleBasis": "rectangle",
+            "recipeScaleUnit": "cm",
+            "recipeScaleBaseLength": 30,
+            "recipeScaleBaseWidth": 20,
+        }
+    )
+
+    response = api_client.put(api_routes.recipes_slug(slug), json=recipe, headers=unique_user.token)
+
+    assert response.status_code == 200
+    saved = response.json()
+    assert saved["recipeScaleBasis"] == "rectangle"
+    assert saved["recipeScaleUnit"] == "cm"
+    assert saved["recipeScaleBaseLength"] == 30
+    assert saved["recipeScaleBaseWidth"] == 20
+
+
 def test_create_recipe_from_zip_reimport_preserves_contents(api_client: TestClient, unique_user: TestUser):
     """Re-importing an export into the same instance keeps every part of the recipe."""
     category = api_client.post(
@@ -462,6 +484,10 @@ def test_create_recipe_from_zip_reimport_preserves_contents(api_client: TestClie
             "recipeYield": "4 servings",
             "recipeServings": 4,
             "recipeYieldQuantity": 4,
+            "recipeScaleBasis": "rectangle",
+            "recipeScaleUnit": "cm",
+            "recipeScaleBaseLength": 30,
+            "recipeScaleBaseWidth": 20,
             "totalTime": "PT25M",
             "prepTime": "PT10M",
             "performTime": "PT15M",
@@ -524,6 +550,10 @@ def test_create_recipe_from_zip_reimport_preserves_contents(api_client: TestClie
         "recipeYield",
         "recipeServings",
         "recipeYieldQuantity",
+        "recipeScaleBasis",
+        "recipeScaleUnit",
+        "recipeScaleBaseLength",
+        "recipeScaleBaseWidth",
         "totalTime",
         "prepTime",
         "performTime",

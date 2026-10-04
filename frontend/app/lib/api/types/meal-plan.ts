@@ -11,6 +11,8 @@ export type PlanRulesType = "breakfast" | "lunch" | "dinner" | "side" | "snack" 
 export type LogicalOperator = "AND" | "OR";
 export type RelationalKeyword = "IS" | "IS NOT" | "IN" | "NOT IN" | "CONTAINS ALL" | "LIKE" | "NOT LIKE";
 export type RelationalOperator = "=" | "<>" | ">" | "<" | ">=" | "<=";
+export type RecipeScaleBasis = "servings" | "round" | "square" | "rectangle";
+export type RecipeScaleUnit = "in" | "cm";
 
 export interface CreatePlanEntry {
   date: string;
@@ -85,6 +87,10 @@ export interface RecipeSummary {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;

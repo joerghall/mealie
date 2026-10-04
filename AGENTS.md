@@ -159,6 +159,8 @@ task docker:prod        # Build and run production Docker compose
 
 4. **Testing before PRs:** Run `task py:check` and `task ui:check` before submitting PRs
 
+5. **Recipe scaling and MCP:** When changing `RecipeScaleBasis`, `RecipeScaleUnit`, or any `recipeScale*` API field, keep the companion `mealie-mcp` repository synchronized. Update its `get_recipe` projection, `create_recipe`/`update_recipe` schemas and REST-field mappings, then run its unit, type, build, and lint checks.
+
 ## Pull Request Best Practices
 
 ### Before Submitting a PR

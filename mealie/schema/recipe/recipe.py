@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import datetime
+from enum import StrEnum
 from numbers import Number
 from pathlib import Path
-from typing import Annotated, Any, ClassVar
+from typing import Annotated, Any, ClassVar, Self
 from uuid import uuid4
 
-from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
+from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic_core.core_schema import ValidationInfo
 from slugify import slugify
 from sqlalchemy import Select, desc, func, or_, select, text
@@ -167,6 +168,18 @@ MAX_DURATION_SECONDS = 2**31 - 1
 DurationSeconds = Annotated[int, Field(ge=0, le=MAX_DURATION_SECONDS)]
 
 
+class RecipeScaleBasis(StrEnum):
+    servings = "servings"
+    round = "round"
+    square = "square"
+    rectangle = "rectangle"
+
+
+class RecipeScaleUnit(StrEnum):
+    inch = "in"
+    centimeter = "cm"
+
+
 class RecipeSummary(MealieModel):
     id: UUID4 | None = None
     _normalize_search: ClassVar[bool] = True
@@ -181,6 +194,10 @@ class RecipeSummary(MealieModel):
     recipe_servings: float = 0
     recipe_yield_quantity: float = 0
     recipe_yield: str | None = None
+    recipe_scale_basis: RecipeScaleBasis = RecipeScaleBasis.servings
+    recipe_scale_unit: RecipeScaleUnit = RecipeScaleUnit.inch
+    recipe_scale_base_length: float = 0
+    recipe_scale_base_width: float = 0
 
     total_time: str | None = None
     prep_time: str | None = None
@@ -205,9 +222,28 @@ class RecipeSummary(MealieModel):
     last_made: datetime.datetime | None = None
     model_config = ConfigDict(from_attributes=True)
 
-    @field_validator("recipe_servings", "recipe_yield_quantity", mode="before")
+    @field_validator(
+        "recipe_servings",
+        "recipe_yield_quantity",
+        "recipe_scale_base_length",
+        "recipe_scale_base_width",
+        mode="before",
+    )
     def clean_numbers(val: Any):
         return val or 0
+
+    @model_validator(mode="after")
+    def validate_recipe_scale_dimensions(self) -> Self:
+        if self.recipe_scale_basis == RecipeScaleBasis.servings:
+            return self
+
+        if self.recipe_scale_base_length <= 0:
+            raise ValueError("Dimensional recipe scaling requires a positive base length")
+
+        if self.recipe_scale_basis == RecipeScaleBasis.rectangle and self.recipe_scale_base_width <= 0:
+            raise ValueError("Rectangle recipe scaling requires a positive base width")
+
+        return self
 
     @field_validator("recipe_yield", "total_time", "prep_time", "cook_time", "perform_time", mode="before")
     def clean_strings(val: Any):

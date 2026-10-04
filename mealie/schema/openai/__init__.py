@@ -13,7 +13,6 @@ from .recipe_ingredient import OpenAIIngredient, OpenAIIngredients
 
 __all__ = [
     "OpenAIOrganizers",
-    "OpenAICompiledSource",
     "OpenAIIngredient",
     "OpenAIIngredients",
     "OpenAIRecipe",
@@ -22,4 +21,5 @@ __all__ = [
     "OpenAIRecipeNotes",
     "OpenAIRecipeNutrition",
     "OpenAIText",
+    "OpenAICompiledSource",
 ]

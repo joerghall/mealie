@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 
 from mealie.schema.recipe import RecipeSummary
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import Recipe, RecipeScaleBasis, RecipeScaleUnit
 
 SHOULD_ERROR = "this_test_should_error"
 
@@ -65,6 +65,61 @@ def test_recipe_number_sanitation(field: str, val: Any, expected: Any):
 
     assert expected != SHOULD_ERROR, "Value should have errored"
     assert getattr(recipe, field) == expected
+
+
+def test_recipe_scale_defaults_to_servings():
+    recipe = RecipeSummary(id=uuid4(), user_id=uuid4(), household_id=uuid4(), group_id=uuid4())
+
+    assert recipe.recipe_scale_basis == RecipeScaleBasis.servings
+    assert recipe.recipe_scale_unit == RecipeScaleUnit.inch
+    assert recipe.recipe_scale_base_length == 0
+    assert recipe.recipe_scale_base_width == 0
+
+
+@pytest.mark.parametrize(
+    ["basis", "base_length", "base_width"],
+    [
+        (RecipeScaleBasis.round, 10, 0),
+        (RecipeScaleBasis.square, 20, 0),
+        (RecipeScaleBasis.rectangle, 20, 10),
+    ],
+)
+def test_recipe_scale_accepts_valid_dimensions(basis: RecipeScaleBasis, base_length: float, base_width: float):
+    recipe = RecipeSummary(
+        id=uuid4(),
+        user_id=uuid4(),
+        household_id=uuid4(),
+        group_id=uuid4(),
+        recipe_scale_basis=basis,
+        recipe_scale_unit=RecipeScaleUnit.centimeter,
+        recipe_scale_base_length=base_length,
+        recipe_scale_base_width=base_width,
+    )
+
+    assert recipe.recipe_scale_basis == basis
+    assert recipe.recipe_scale_base_length == base_length
+    assert recipe.recipe_scale_base_width == base_width
+
+
+@pytest.mark.parametrize(
+    ["basis", "base_length", "base_width"],
+    [
+        (RecipeScaleBasis.round, 0, 0),
+        (RecipeScaleBasis.square, -1, 0),
+        (RecipeScaleBasis.rectangle, 20, 0),
+    ],
+)
+def test_recipe_scale_rejects_invalid_dimensions(basis: RecipeScaleBasis, base_length: float, base_width: float):
+    with pytest.raises(ValueError):
+        RecipeSummary(
+            id=uuid4(),
+            user_id=uuid4(),
+            household_id=uuid4(),
+            group_id=uuid4(),
+            recipe_scale_basis=basis,
+            recipe_scale_base_length=base_length,
+            recipe_scale_base_width=base_width,
+        )
 
 
 @pytest.mark.parametrize("field", ["total_time_seconds", "prep_time_seconds", "perform_time_seconds"])

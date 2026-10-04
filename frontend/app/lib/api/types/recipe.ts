@@ -7,6 +7,8 @@
 
 export type ExportTypes = "json";
 export type RegisteredParser = "nlp" | "brute" | "openai";
+export type RecipeScaleBasis = "servings" | "round" | "square" | "rectangle";
+export type RecipeScaleUnit = "in" | "cm";
 export type OrderByNullPosition = "first" | "last";
 export type OrderDirection = "asc" | "desc";
 export type TimelineEventType = "system" | "info" | "comment";
@@ -267,6 +269,10 @@ export interface Recipe {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;
@@ -367,6 +373,10 @@ export interface RecipeSummary {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;
@@ -413,10 +423,17 @@ export interface RecipeIn {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;
   performTime?: string | null;
+  totalTimeSeconds?: number | null;
+  prepTimeSeconds?: number | null;
+  performTimeSeconds?: number | null;
   description?: string | null;
   recipeCategory?: RecipeCategoryIn[] | null;
   tags?: RecipeTagIn[] | null;

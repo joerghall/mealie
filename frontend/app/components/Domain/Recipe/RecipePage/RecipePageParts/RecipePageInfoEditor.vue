@@ -43,6 +43,58 @@
           />
         </v-col>
       </v-row>
+      <v-row>
+        <v-col cols="12" sm="4">
+          <v-select
+            v-model="recipe.recipeScaleBasis"
+            :items="scaleBasisOptions"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            :label="$t('recipe.scaling-basis')"
+            variant="underlined"
+          />
+        </v-col>
+        <v-col v-if="recipe.recipeScaleBasis !== 'servings'" cols="12" sm="2">
+          <v-select
+            v-model="recipe.recipeScaleUnit"
+            :items="scaleUnitOptions"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            :label="$t('recipe.dimension-unit')"
+            variant="underlined"
+          />
+        </v-col>
+        <v-col v-if="recipe.recipeScaleBasis !== 'servings'" cols="12" :sm="recipe.recipeScaleBasis === 'rectangle' ? 3 : 6">
+          <v-number-input
+            :model-value="recipe.recipeScaleBaseLength"
+            :min="0"
+            :precision="null"
+            :rules="positiveDimensionRules"
+            density="compact"
+            :label="primaryDimensionLabel"
+            :suffix="recipe.recipeScaleUnit"
+            variant="underlined"
+            control-variant="hidden"
+            @update:model-value="updateBaseLength"
+          />
+        </v-col>
+        <v-col v-if="recipe.recipeScaleBasis === 'rectangle'" cols="12" sm="3">
+          <v-number-input
+            :model-value="recipe.recipeScaleBaseWidth"
+            :min="0"
+            :precision="null"
+            :rules="positiveDimensionRules"
+            density="compact"
+            :label="$t('recipe.base-width')"
+            :suffix="recipe.recipeScaleUnit"
+            variant="underlined"
+            control-variant="hidden"
+            @update:model-value="updateBaseWidth"
+          />
+        </v-col>
+      </v-row>
     </v-container>
 
     <RecipeTimeInput
@@ -75,7 +127,42 @@
 import RecipeTimeInput from "~/components/Domain/Recipe/RecipeTimeInput.vue";
 import { validators } from "~/composables/use-validators";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { Recipe, RecipeScaleBasis, RecipeScaleUnit } from "~/lib/api/types/recipe";
 
 const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const i18n = useI18n();
+
+const scaleBasisOptions: { title: string; value: RecipeScaleBasis }[] = [
+  { title: i18n.t("recipe.scaling-basis-servings"), value: "servings" },
+  { title: i18n.t("recipe.scaling-basis-round"), value: "round" },
+  { title: i18n.t("recipe.scaling-basis-square"), value: "square" },
+  { title: i18n.t("recipe.scaling-basis-rectangle"), value: "rectangle" },
+];
+
+const scaleUnitOptions: { title: string; value: RecipeScaleUnit }[] = [
+  { title: i18n.t("recipe.inches"), value: "in" },
+  { title: i18n.t("recipe.centimeters"), value: "cm" },
+];
+
+const primaryDimensionLabel = computed(() => {
+  if (recipe.value.recipeScaleBasis === "round") {
+    return i18n.t("recipe.base-diameter");
+  }
+  if (recipe.value.recipeScaleBasis === "square") {
+    return i18n.t("recipe.base-side-length");
+  }
+  return i18n.t("recipe.base-length");
+});
+
+const positiveDimensionRules = [
+  (value: number) => value > 0 || i18n.t("recipe.dimension-must-be-positive"),
+];
+
+function updateBaseLength(value: number | null) {
+  recipe.value.recipeScaleBaseLength = value ?? 0;
+}
+
+function updateBaseWidth(value: number | null) {
+  recipe.value.recipeScaleBaseWidth = value ?? 0;
+}
 </script>

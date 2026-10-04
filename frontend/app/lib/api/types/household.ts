@@ -7,6 +7,8 @@
 
 export type GroupRecipeActionType = "link" | "post";
 export type WebhookType = "mealplan";
+export type RecipeScaleBasis = "servings" | "round" | "square" | "rectangle";
+export type RecipeScaleUnit = "in" | "cm";
 
 export interface CreateGroupRecipeAction {
   actionType: GroupRecipeActionType;
@@ -432,6 +434,10 @@ export interface Recipe {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;
@@ -736,6 +742,10 @@ export interface RecipeSummary {
   recipeServings?: number;
   recipeYieldQuantity?: number;
   recipeYield?: string | null;
+  recipeScaleBasis?: RecipeScaleBasis;
+  recipeScaleUnit?: RecipeScaleUnit;
+  recipeScaleBaseLength?: number;
+  recipeScaleBaseWidth?: number;
   totalTime?: string | null;
   prepTime?: string | null;
   cookTime?: string | null;
