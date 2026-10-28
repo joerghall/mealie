@@ -163,6 +163,7 @@ export interface IngredientFood {
   substitutions?: IngredientFoodSubstitution[];
   householdsWithIngredientFood?: string[];
   label?: MultiPurposeLabelSummary | null;
+  recipeCount?: number;
   createdAt?: string | null;
   updatedAt?: string | null;
 }
@@ -290,7 +291,6 @@ export interface Recipe {
   dateUpdated?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-  lastMade?: string | null;
   recipeIngredient?: RecipeIngredient[];
   recipeInstructions?: RecipeStep[] | null;
   nutrition?: Nutrition | null;
@@ -317,6 +317,7 @@ export interface RecipeStep {
   text: string;
   ingredientReferences?: IngredientReferences[];
   noteReferences?: NoteReference[];
+  durationSeconds?: number | null;
 }
 export interface RecipeAsset {
   name: string;
@@ -394,7 +395,6 @@ export interface RecipeSummary {
   dateUpdated?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-  lastMade?: string | null;
 }
 export interface RecipeCommentCreate {
   recipeId: string;
@@ -444,7 +444,6 @@ export interface RecipeIn {
   dateUpdated?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-  lastMade?: string | null;
   recipeIngredient?: RecipeIngredient[];
   recipeInstructions?: RecipeStep[] | null;
   nutrition?: Nutrition | null;
@@ -583,12 +582,17 @@ export interface RecipeToolCreate {
   name: string;
   householdsWithTool?: string[];
 }
+export interface RecipeToolMerge {
+  fromId: string;
+  toId: string;
+}
 export interface RecipeToolOut {
   name: string;
   householdsWithTool?: string[];
   id: string;
   groupId: string;
   slug: string;
+  recipeCount?: number;
 }
 export interface RecipeToolResponse {
   name: string;
@@ -596,6 +600,7 @@ export interface RecipeToolResponse {
   id: string;
   groupId: string;
   slug: string;
+  recipeCount?: number;
   recipes?: RecipeSummary[];
 }
 export interface RecipeToolSave {

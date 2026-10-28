@@ -8,7 +8,7 @@
 Mealie offers several ways to create recipes:
 
 - **Recipe Scraper:** Create recipes from hundreds of websites by simply providing a URL.
-- **Recipe HTML or JSON:** Copy/paste structured HTML or JSON and Mealie can import it.
+- **Recipe HTML or JSON:** Copy/paste structured HTML or JSON and Mealie can import it. A recipe copied from Mealie's own JSON editor, or the JSON file from a Mealie recipe export, is imported with its full structure: ingredient foods and units, step titles and ingredient links, notes, tools, and tags and categories (when those import options are ticked).
 - **Manual Editor:** Create recipes from scratch using the integrated editor.
 
 Mealie's [AI integration](./installation/ai-providers.md) adds an **Import with AI** page, which creates a recipe out of just about anything:
@@ -85,6 +85,8 @@ Mealie uses a calendar like view to help you plan your meals. It shows you the p
 !!! tip
     You can also add a "Note" type entry to your meal plan when you want to include something that might not have a specific recipes. This is great for leftovers, or for ordering out.
 
+Each recipe on your meal plan has its own serving size, which you can adjust right from the planner without changing the recipe itself. When you add a day or the whole plan to a shopping list, the ingredient quantities follow the serving sizes you've planned, and opening a recipe from the planner shows it at that size too.
+
 [Meal Planner Demo](https://demo.mealie.io/household/mealplan/planner/view){ .md-button .md-button--primary }
 
 ### Planner Rules
@@ -139,11 +141,13 @@ Notifiers use the [Apprise library](https://github.com/caronc/apprise/wiki), whi
 - `json` and `jsons`
 - `xml` and `xmls`
 
+Only users with the **Manage household** permission can view and change notifiers.
+
 [Notifiers Demo](https://demo.mealie.io/household/notifiers){ .md-button .md-button--primary }
 
 ### Webhooks
 
-Unlike notifiers, which are event-driven notifications, Webhooks allow you to send scheduled notifications to your desired endpoint. Webhooks are sent on the day of a scheduled meal plan, at the specified time, and contain the meal plan data in the request.
+Unlike notifiers, which are event-driven notifications, Webhooks allow you to send scheduled notifications to your desired endpoint. Webhooks are sent on the day of a scheduled meal plan, at the specified time, and contain the meal plan data in the request. Only users with the **Manage household** permission can view and change webhooks.
 
 [Webhooks Demo](https://demo.mealie.io/household/webhooks){ .md-button .md-button--primary }
 
